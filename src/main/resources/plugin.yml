@@ -1,0 +1,21 @@
+name: SmoczyMiecz
+version: ${project.version}
+main: pl.bafik.smoczymiecz.SmoczyMieczPlugin
+api-version: '1.20'
+author: bafik-187
+description: Super item z anarchia.gg - Smoczy Miecz strzelajacy ender perlami
+
+commands:
+  smoczymiecz:
+    description: Daje Smoczy Miecz tobie lub innemu graczowi
+    usage: /smoczymiecz [gracz]
+    permission: smoczymiecz.give
+    aliases: [sm, dragonsword]
+
+permissions:
+  smoczymiecz.give:
+    description: Pozwala uzywac /smoczymiecz
+    default: op
+  smoczymiecz.use:
+    description: Pozwala strzelac perlami ze Smoczego Miecza
+    default: true

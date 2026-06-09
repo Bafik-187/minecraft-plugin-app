@@ -1,0 +1,13 @@
+# Konfiguracja Smoczego Miecza
+
+# Cooldown strzalu perla (w sekundach)
+pearl-cooldown: 3
+
+# Predkosc wystrzelonej perly (1.5 = domyslny rzut, wyzej = dalej)
+pearl-velocity: 2.0
+
+# Czy strzal perla zuzywa perle z ekwipunku (false = perly za darmo, jak na anarchii)
+consume-pearl: false
+
+# Dodatkowe obrazenia zadawane endermanom i smokowi (w polowkach serca)
+bonus-ender-damage: 4.0
