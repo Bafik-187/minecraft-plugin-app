@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Maria Skłodowska-Curie</title>
+<link rel="stylesheet" href="fonts/fonts.css">
+<style>
+:root{
+  --paper:#ecdfc2; --paper2:#e2cfa8; --ink:#33200f; --ink2:#5a3a1e; --sepia:#8a5a2b;
+  --gold:#c99a4e; --gold-l:#ecd29b; --cream:#fbf3e2; --night:#140d07;
+  --glow:#a9dcff;
+  --serif-d:'Playfair Display', Georgia, 'Times New Roman', serif;
+  --serif-t:'Cormorant Garamond', Garamond, Georgia, serif;
+  --ease:cubic-bezier(.22,.7,.18,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;background:var(--night);overflow:hidden;color:var(--ink)}
+body{font-family:var(--serif-t);-webkit-font-smoothing:antialiased}
+
+/* ---------- scena 16:9 ---------- */
+#deck{position:fixed;inset:0;display:grid;place-items:center;background:
+  radial-gradient(ellipse at center,#2a1b0f 0%,#0d0805 75%)}
+#stage{position:absolute;left:50%;top:50%;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;
+  background:#1a110a;box-shadow:0 0 120px rgba(0,0,0,.8)}
+
+/* ---------- slajd + przejścia (efekt "wywoływania" zdjęcia) ---------- */
+.slide{position:absolute;inset:0;opacity:0;visibility:hidden;
+  transform:scale(1.035);filter:blur(10px) sepia(1) brightness(1.25) contrast(.85);
+  transition:opacity 1.05s var(--ease),transform 1.6s var(--ease),filter 1.2s var(--ease),visibility 0s linear 1.2s}
+.slide.active{opacity:1;visibility:visible;transform:none;filter:none;
+  transition:opacity 1.05s var(--ease),transform 1.6s var(--ease),filter 1.2s var(--ease),visibility 0s}
+.slide.before{transform:scale(.975)}
+.rv{opacity:0;transform:translateY(22px);transition:opacity .9s var(--ease),transform 1.1s var(--ease)}
+.slide.active .rv{opacity:1;transform:none;transition-delay:calc(.35s + var(--i,0) * .11s)}
+
+/* ---------- papier (slajdy archiwalne) ---------- */
+.paper{background:
+  radial-gradient(ellipse 70% 55% at 30% 25%,rgba(255,250,235,.55),transparent 70%),
+  radial-gradient(circle at 88% 82%,rgba(125,72,22,.20),transparent 22%),
+  radial-gradient(circle at 92% 12%,rgba(125,72,22,.10),transparent 14%),
+  radial-gradient(circle at 6% 88%,rgba(125,72,22,.14),transparent 18%),
+  linear-gradient(170deg,var(--paper),var(--paper2))}
+.paper::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .9' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .2 0 0 0 0 .08 0 0 0 .5 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  opacity:.35;mix-blend-mode:multiply}
+.paper::after{content:"";position:absolute;inset:0;pointer-events:none;
+  box-shadow:inset 0 0 260px rgba(80,42,10,.55),inset 0 0 60px rgba(80,42,10,.35)}
+
+/* ---------- typografia ---------- */
+.kicker{font:600 26px/1 var(--serif-t);letter-spacing:.32em;text-transform:uppercase;color:var(--sepia);
+  display:flex;align-items:center;gap:22px;margin-bottom:28px}
+.kicker::after{content:"";height:1px;width:120px;background:currentColor;opacity:.55}
+h1{font:700 128px/.98 var(--serif-d);letter-spacing:-.01em}
+h1 em{font-style:italic;font-weight:400}
+h2{font:600 80px/1.04 var(--serif-d);letter-spacing:-.005em;margin-bottom:46px;color:var(--ink)}
+h2 em{font-style:italic;font-weight:400;color:var(--ink2)}
+ul.pts{list-style:none;display:flex;flex-direction:column;gap:26px}
+ul.pts li{font:500 38px/1.28 var(--serif-t);padding-left:58px;position:relative;color:var(--ink)}
+ul.pts li::before{content:"";position:absolute;left:6px;top:.52em;width:14px;height:14px;transform:rotate(45deg);
+  border:2px solid var(--gold);background:rgba(201,154,78,.25)}
+ul.pts li b{font-weight:700;color:var(--ink2)}
+.quote{font:italic 400 40px/1.35 var(--serif-d);color:var(--ink2);border-left:3px solid var(--gold);padding-left:32px;margin-top:40px}
+.quote small{display:block;font:600 22px/1.4 var(--serif-t);letter-spacing:.18em;text-transform:uppercase;font-style:normal;margin-top:14px;opacity:.75}
+.year{position:absolute;right:70px;bottom:-60px;font:italic 700 360px/1 var(--serif-d);color:rgba(110,62,20,.075);pointer-events:none;letter-spacing:-.03em}
+
+/* ---------- układy ---------- */
+.content{position:absolute;inset:110px 130px 140px 130px;display:grid;grid-template-columns:1.08fr .92fr;gap:100px;align-items:center}
+.content.rev{grid-template-columns:.92fr 1.08fr}
+.content.rev>.txt{order:2}
+.content.center{grid-template-columns:1fr;justify-items:center;text-align:center}
+.txt{position:relative;z-index:2}
+
+/* ---------- archiwalna fotografia ---------- */
+.photo{position:relative;justify-self:center;width:100%;max-width:530px;rotate:var(--r,-2deg);z-index:1}
+.photo.wide{max-width:800px}
+.photo .mat{position:absolute;inset:-26px -26px -86px -26px;background:linear-gradient(160deg,#f4ead2,#e3d0a6);
+  filter:url(#rough);box-shadow:0 30px 60px rgba(40,20,5,.45),0 6px 14px rgba(40,20,5,.3)}
+.photo .mat::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 40px rgba(120,70,25,.45);
+  background:radial-gradient(circle at 80% 90%,rgba(130,80,30,.25),transparent 25%),radial-gradient(circle at 12% 8%,rgba(130,80,30,.18),transparent 18%)}
+.photo .media{position:relative;aspect-ratio:4/5;overflow:hidden;background:#3b2a1b;
+  box-shadow:inset 0 0 0 1px rgba(40,20,5,.5)}
+.photo.wide .media{aspect-ratio:16/10}
+.photo .media::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
+  box-shadow:inset 0 0 70px rgba(30,15,3,.65);
+  background:radial-gradient(ellipse at center,transparent 55%,rgba(40,20,5,.35))}
+.photo figcaption{position:absolute;left:0;right:0;bottom:-70px;text-align:center;
+  font:italic 500 26px/1.2 var(--serif-t);color:#5a3a1e}
+.photo figcaption small{display:block;font:500 15px/1.3 var(--serif-t);font-style:normal;letter-spacing:.08em;opacity:.7;margin-top:4px}
+.photo .corner{position:absolute;width:62px;height:62px;z-index:4;background:linear-gradient(135deg,#2a1a0e 50%,transparent 50%);opacity:.92;filter:drop-shadow(1px 2px 2px rgba(0,0,0,.4))}
+.photo .corner.tl{left:-14px;top:-14px}
+.photo .corner.br{right:-14px;bottom:-14px;transform:rotate(180deg)}
+.photo .tape{position:absolute;top:-44px;left:50%;width:170px;height:46px;transform:translateX(-50%) rotate(3deg);z-index:5;
+  background:rgba(235,220,180,.55);box-shadow:0 2px 6px rgba(0,0,0,.15);backdrop-filter:blur(1px)}
+img.pic,video.pic{width:100%;height:100%;object-fit:cover;display:block;filter:sepia(.75) contrast(1.06) brightness(.94) saturate(.9)}
+
+/* ---------- placeholder ---------- */
+.ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:40px;text-align:center;
+  color:#e9d9b6;background:
+  repeating-linear-gradient(45deg,rgba(255,240,210,.035) 0 2px,transparent 2px 14px),
+  radial-gradient(ellipse at 50% 40%,#5b4129,#2d1e12 80%)}
+.ph-ico{width:86px;height:86px;border:1.5px solid rgba(236,210,155,.6);border-radius:50%;display:grid;place-items:center;font:400 38px/1 var(--serif-d);color:var(--gold-l)}
+.ph-txt{font:italic 500 30px/1.3 var(--serif-t);max-width:90%}
+.ph-sub{font:600 14px/1 var(--serif-t);letter-spacing:.3em;text-transform:uppercase;opacity:.55}
+
+/* ---------- odtwarzacz ---------- */
+.playbtn{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);z-index:6;width:118px;height:118px;border-radius:50%;cursor:pointer;
+  border:1.5px solid rgba(255,255,255,.55);background:rgba(255,245,225,.16);backdrop-filter:blur(10px) saturate(130%);-webkit-backdrop-filter:blur(10px) saturate(130%);
+  box-shadow:0 12px 40px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.55);display:grid;place-items:center;transition:transform .4s var(--ease),opacity .4s}
+.playbtn:hover{transform:translate(-50%,-50%) scale(1.07)}
+.playbtn svg{width:42px;height:42px;margin-left:8px;fill:#fff8ea}
+.playing .playbtn{opacity:0;pointer-events:none}
+.vctl{position:absolute;right:16px;bottom:16px;z-index:6;display:flex;gap:10px;opacity:0;transition:opacity .4s}
+.media:hover .vctl,.playing .vctl{opacity:1}
+.vctl button{font:600 15px/1 var(--serif-t);letter-spacing:.12em;text-transform:uppercase;color:#fff8ea;padding:10px 16px;border-radius:30px;cursor:pointer;
+  border:1px solid rgba(255,255,255,.4);background:rgba(30,18,8,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.filmtag{position:absolute;left:16px;top:14px;z-index:6;font:600 14px/1 var(--serif-t);letter-spacing:.3em;color:rgba(255,245,225,.8);text-transform:uppercase}
+
+/* ---------- slajdy szklane ---------- */
+.glass-slide{background:#1b120a}
+.bgimg{position:absolute;inset:0;overflow:hidden}
+.bgimg img.pic{position:absolute;inset:-3%;width:106%;height:106%;filter:sepia(.85) brightness(.58) contrast(1.12) saturate(.85)}
+.slide.active .bgimg img.pic{animation:kb 24s ease-out forwards}
+@keyframes kb{from{transform:scale(1.02) translate(0,0)}to{transform:scale(1.12) translate(-1.5%,-1%)}}
+.bgimg .ph{background:
+  radial-gradient(circle at 22% 30%,rgba(214,150,70,.55),transparent 32%),
+  radial-gradient(circle at 75% 65%,rgba(150,85,35,.6),transparent 38%),
+  radial-gradient(circle at 62% 20%,rgba(240,200,130,.35),transparent 22%),
+  radial-gradient(circle at 35% 85%,rgba(120,60,25,.55),transparent 30%),
+  linear-gradient(135deg,#3b2615,#1a0f07)}
+.bgimg .ph .ph-txt,.bgimg .ph .ph-ico,.bgimg .ph .ph-sub{display:none}
+.bgimg .bgnote{position:absolute;right:46px;top:40px;font:italic 500 20px/1 var(--serif-t);color:rgba(255,240,215,.45);z-index:2}
+.bgimg::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 50% 45%,transparent 30%,rgba(10,5,2,.7) 100%)}
+.glass{position:relative;border-radius:34px;padding:70px 80px;color:var(--cream);
+  background:linear-gradient(140deg,rgba(255,250,238,.20) 0%,rgba(255,238,210,.07) 45%,rgba(255,245,230,.12) 100%);
+  backdrop-filter:blur(24px) saturate(150%) brightness(1.05);-webkit-backdrop-filter:blur(24px) saturate(150%) brightness(1.05);
+  border:1px solid rgba(255,255,255,.38);
+  box-shadow:0 40px 100px rgba(0,0,0,.5),0 8px 24px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.6),inset 0 -1px 0 rgba(255,255,255,.12),inset 0 0 50px rgba(255,240,215,.06);
+  overflow:hidden}
+.glass::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(ellipse 60% 40% at 18% 0%,rgba(255,255,255,.32),transparent 70%),
+             linear-gradient(180deg,rgba(255,255,255,.10),transparent 30%)}
+.glass::after{content:"";position:absolute;top:-50%;bottom:-50%;width:30%;left:-60%;pointer-events:none;transform:rotate(18deg);
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent)}
+.slide.active .glass::after{animation:sheen 2.4s .9s var(--ease) both}
+@keyframes sheen{from{left:-60%}to{left:140%}}
+.glass>*{position:relative;z-index:1}
+.glass h1,.glass h2{color:#fff8ec;text-shadow:0 2px 30px rgba(0,0,0,.35)}
+.glass h2 em{color:var(--gold-l)}
+.glass .kicker{color:var(--gold-l)}
+.glass ul.pts li{color:#fbf1de}
+.glass ul.pts li b{color:var(--gold-l)}
+.glass ul.pts li::before{border-color:var(--gold-l);background:rgba(236,210,155,.25)}
+.glass .quote{color:#fbf1de;border-color:var(--gold-l)}
+.glass-wrap{position:absolute;inset:110px 130px 140px 130px;display:flex;align-items:center;gap:70px}
+.glass-wrap.center{justify-content:center}
+.glass.media-glass{padding:18px;border-radius:30px;flex:0 0 760px}
+.glass.media-glass .media{position:relative;aspect-ratio:16/10;border-radius:18px;overflow:hidden;background:#2b1c10}
+.glass.media-glass .media .ph{border-radius:18px}
+
+/* tabliczka pierwiastka */
+.element{flex:0 0 330px;height:380px;border-radius:30px;display:flex;flex-direction:column;justify-content:space-between;padding:34px 38px;color:#fff8ec}
+.element .z{font:600 40px/1 var(--serif-t)}
+.element .sym{font:700 170px/1 var(--serif-d);letter-spacing:-.02em}
+.element .nm{font:italic 500 38px/1 var(--serif-t)}
+.element.ra .sym{color:#e9f6ff;text-shadow:0 0 30px rgba(169,220,255,.85),0 0 80px rgba(120,190,255,.55)}
+.element.ra{box-shadow:0 40px 100px rgba(0,0,0,.5),0 0 90px rgba(140,200,255,.25),inset 0 1px 0 rgba(255,255,255,.6)}
+
+/* statystyki (podsumowanie) */
+.stats{display:flex;gap:30px;margin-top:50px;justify-content:center}
+.stat{padding:30px 40px;border-radius:24px;min-width:260px;text-align:center}
+.stat .n{font:700 74px/1 var(--serif-d);color:#fff8ec}
+.stat .l{font:500 24px/1.2 var(--serif-t);letter-spacing:.06em;color:var(--gold-l);margin-top:10px}
+
+/* stopka slajdu */
+.foot{position:absolute;left:130px;right:130px;bottom:52px;display:flex;justify-content:space-between;align-items:center;z-index:5;
+  font:600 19px/1 var(--serif-t);letter-spacing:.28em;text-transform:uppercase;color:rgba(70,40,15,.6)}
+.glass-slide .foot{color:rgba(255,240,215,.6)}
+.foot .num{font-family:var(--serif-d);letter-spacing:.1em;font-style:italic;text-transform:none;font-size:24px}
+
+/* ---------- warstwy filmowe nad sceną ---------- */
+.grain{position:absolute;inset:-60%;pointer-events:none;z-index:50;opacity:.16;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain .9s steps(6) infinite}
+@keyframes grain{0%{transform:translate(0,0)}17%{transform:translate(-4%,3%)}33%{transform:translate(3%,-5%)}50%{transform:translate(-6%,-2%)}67%{transform:translate(5%,4%)}83%{transform:translate(-2%,6%)}100%{transform:translate(0,0)}}
+.vignette{position:absolute;inset:0;pointer-events:none;z-index:51;
+  background:radial-gradient(ellipse 85% 80% at 50% 50%,transparent 55%,rgba(25,12,3,.55) 100%);animation:flick 6s infinite}
+@keyframes flick{0%,100%{opacity:1}47%{opacity:.93}48%{opacity:1}72%{opacity:.96}}
+.scratch{position:absolute;top:0;bottom:0;width:1px;z-index:52;pointer-events:none;background:linear-gradient(transparent,rgba(255,245,220,.35),transparent);opacity:0}
+.scratch.s1{left:23%;animation:scr 7s 1s infinite}
+.scratch.s2{left:71%;animation:scr 9s 4s infinite}
+@keyframes scr{0%,90%,100%{opacity:0;transform:translateX(0)}92%{opacity:.7}95%{opacity:.3;transform:translateX(14px)}97%{opacity:.6;transform:translateX(-6px)}}
+.progress{position:absolute;left:0;bottom:0;height:4px;z-index:53;background:linear-gradient(90deg,var(--sepia),var(--gold-l));transition:width .9s var(--ease)}
+
+/* ---------- interfejs ---------- */
+#ui{position:fixed;right:22px;bottom:20px;z-index:100;display:flex;gap:10px;opacity:0;transition:opacity .5s}
+#ui.show{opacity:1}
+#ui button{width:48px;height:48px;border-radius:50%;cursor:pointer;color:#fff3dc;font:400 22px/1 var(--serif-d);
+  border:1px solid rgba(255,255,255,.3);background:rgba(40,24,10,.45);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+#ui button:hover{background:rgba(120,80,40,.55)}
+#hint{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:100;padding:12px 26px;border-radius:30px;
+  font:600 16px/1 var(--serif-t);letter-spacing:.2em;text-transform:uppercase;color:#fff3dc;
+  background:rgba(40,24,10,.5);border:1px solid rgba(255,255,255,.25);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:opacity 1s}
+#credits{position:fixed;inset:0;z-index:200;display:none;place-items:center;background:rgba(10,6,3,.7);backdrop-filter:blur(6px)}
+#credits.open{display:grid}
+#credits .box{width:min(900px,92vw);max-height:84vh;overflow:auto;padding:44px 50px;border-radius:24px;background:var(--paper);color:var(--ink);box-shadow:0 30px 80px rgba(0,0,0,.6)}
+#credits h3{font:600 40px/1.1 var(--serif-d);margin-bottom:8px}
+#credits p{font:500 19px/1.4 var(--serif-t);margin-bottom:18px;color:var(--ink2)}
+#credits li{font:500 18px/1.4 var(--serif-t);margin:0 0 10px 20px}
+#credits li.miss{opacity:.6;font-style:italic}
+#credits a{color:var(--sepia)}
+
+@media (prefers-reduced-motion:reduce){
+  .grain,.vignette,.scratch,.slide.active .bgimg img.pic{animation:none}
+  .slide,.rv{transition-duration:.01s!important}
+}
+</style>
+</head>
+<body>
+
+<!-- filtr "zniszczonych krawędzi" fotografii -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="rough" x="-6%" y="-6%" width="112%" height="112%">
+    <feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="4" seed="11" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="16" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<div id="deck"><div id="stage">
+
+<!-- 1. TYTUŁ (szkło) -->
+<section class="slide glass-slide" data-chapter="1867 – 1934">
+  <div class="bgimg" data-id="portret_1920" data-desc="portret Marii Curie, ok. 1920"></div>
+  <div class="glass-wrap">
+    <div class="glass" style="max-width:1180px;padding:90px 100px">
+      <div class="kicker">Warszawa · Paryż · 1867–1934</div>
+      <h1>Maria<br><em>Skłodowska-Curie</em></h1>
+      <p class="quote" style="font-size:38px;margin-top:46px">Uczona, która rozświetliła niewidzialne</p>
+    </div>
+  </div>
+</section>
+
+<!-- 2. KIM BYŁA (szkło) -->
+<section class="slide glass-slide" data-chapter="Wprowadzenie">
+  <div class="bgimg" data-id="portret_mlody" data-desc="Maria Curie, ok. 1903"></div>
+  <div class="glass-wrap">
+    <div class="glass" style="max-width:1150px">
+      <div class="kicker">Wprowadzenie</div>
+      <h2>Kim <em>była?</em></h2>
+      <ul class="pts">
+        <li>Fizyczka i chemiczka, <b>pionierka badań nad promieniotwórczością</b></li>
+        <li>Odkryła dwa pierwiastki: <b>polon i rad</b></li>
+        <li>Pierwsza kobieta z Nagrodą Nobla – i jedyna osoba nagrodzona w <b>dwóch różnych naukach ścisłych</b></li>
+        <li>Polka z urodzenia i serca, Francuzka z wyboru</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 3. WARSZAWA POD ZABORAMI (film) -->
+<section class="slide paper" data-chapter="Warszawa">
+  <div class="year">1867</div>
+  <div class="content">
+    <div class="txt">
+      <div class="kicker">Rozdział I · Warszawa</div>
+      <h2>Warszawa <em>pod zaborami</em></h2>
+      <ul class="pts">
+        <li>Miasto w zaborze rosyjskim, tuż po klęsce <b>powstania styczniowego</b></li>
+        <li>Rusyfikacja szkół: historia Polski i język polski pod zakazem</li>
+        <li>Polskie lekcje odbywają się potajemnie – za ich wykrycie grożą surowe kary</li>
+      </ul>
+    </div>
+    <figure class="photo wide" style="--r:1.5deg"><span class="mat"></span>
+      <div class="media" data-id="film_warszawa_dawna" data-kind="video" data-desc="Warszawa przełomu XIX i XX wieku – ulice, dorożki, tramwaje konne"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Warszawa na dawnej taśmie filmowej</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 4. RODZINA -->
+<section class="slide paper" data-chapter="Rodzina">
+  <div class="content rev">
+    <div class="txt">
+      <div class="kicker">Dom przy ulicy Freta</div>
+      <h2>Rodzina <em>Skłodowskich</em></h2>
+      <ul class="pts">
+        <li>Ojciec <b>Władysław</b> – nauczyciel matematyki i fizyki</li>
+        <li>Matka <b>Bronisława z Boguskich</b> – przełożona pensji dla dziewcząt</li>
+        <li>Pięcioro dzieci: Zofia, Józef, Bronisława, Helena i najmłodsza <b>Maria – „Mania”</b></li>
+        <li>W domu: książki, przyrządy fizyczne i patriotyzm</li>
+      </ul>
+    </div>
+    <figure class="photo" style="--r:-2.5deg"><span class="mat"></span>
+      <div class="media" data-id="rodzina" data-desc="Władysław Skłodowski z córkami"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Władysław Skłodowski z córkami</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 5. DZIECIŃSTWO I STRATA -->
+<section class="slide paper" data-chapter="Dzieciństwo">
+  <div class="year">1878</div>
+  <div class="content">
+    <div class="txt">
+      <div class="kicker">Lata dziecięce</div>
+      <h2>Dzieciństwo <em>i strata</em></h2>
+      <ul class="pts">
+        <li><b>1876</b> – na tyfus umiera najstarsza siostra, Zofia</li>
+        <li><b>1878</b> – matka umiera na gruźlicę; Maria ma zaledwie 10 lat</li>
+        <li>Żałobę przeżywa w milczeniu – oparciem staje się dla niej nauka</li>
+      </ul>
+    </div>
+    <figure class="photo" style="--r:2deg"><span class="mat"></span>
+      <div class="media" data-id="matka" data-desc="Bronisława Skłodowska, matka Marii"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Bronisława Skłodowska z Boguskich</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 6. SZKOŁA -->
+<section class="slide paper" data-chapter="Szkoła">
+  <div class="year">1883</div>
+  <div class="content rev">
+    <div class="txt">
+      <div class="kicker">Gimnazjum</div>
+      <h2>Szkoła <em>i złoty medal</em></h2>
+      <ul class="pts">
+        <li>Najlepsza uczennica – mimo carskiego nadzoru i lekcji po rosyjsku</li>
+        <li><b>1883</b> – kończy gimnazjum ze <b>złotym medalem</b>, mając 15 lat</li>
+        <li>Dalej droga zamknięta: Uniwersytet Warszawski nie przyjmuje kobiet</li>
+      </ul>
+    </div>
+    <figure class="photo" style="--r:-1.5deg"><span class="mat"></span><span class="tape"></span>
+      <div class="media" data-id="maria_uczennica" data-desc="Maria Skłodowska jako uczennica"></div>
+      <figcaption>Maria Skłodowska w latach szkolnych</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 7. UNIWERSYTET LATAJĄCY -->
+<section class="slide paper" data-chapter="Uniwersytet Latający">
+  <div class="content">
+    <div class="txt">
+      <div class="kicker">Tajne komplety</div>
+      <h2>Uniwersytet <em>Latający</em></h2>
+      <ul class="pts">
+        <li>Nielegalne kursy w prywatnych mieszkaniach – <b>wciąż w innym miejscu</b></li>
+        <li>Maria i Bronisława uczą się, a same uczą robotnice</li>
+        <li>Duch pozytywizmu: praca u podstaw i wiara w naukę</li>
+      </ul>
+    </div>
+    <figure class="photo wide" style="--r:1.8deg"><span class="mat"></span>
+      <div class="media" data-id="warszawa_kamienice" data-desc="kamienice Starego Miasta w Warszawie, XIX w."></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Stara Warszawa</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 8. GUWERNANTKA -->
+<section class="slide paper" data-chapter="Szczuki">
+  <div class="year">1886</div>
+  <div class="content rev">
+    <div class="txt">
+      <div class="kicker">Lata 1886–1889</div>
+      <h2>Praca <em>guwernantki</em></h2>
+      <ul class="pts">
+        <li>Guwernantka u Żorawskich w <b>Szczukach</b> pod Przasnyszem</li>
+        <li>Nocami sama uczy się fizyki, chemii i matematyki</li>
+        <li>Potajemnie uczy wiejskie dzieci czytać po polsku</li>
+        <li>Miłość do Kazimierza Żorawskiego – jego rodzina nie zgadza się na ślub</li>
+      </ul>
+    </div>
+    <figure class="photo" style="--r:2.2deg"><span class="mat"></span>
+      <div class="media" data-id="szczuki" data-desc="dwór w Szczukach"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Dwór w Szczukach</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 9. SIOSTRZANY PAKT -->
+<section class="slide paper" data-chapter="Bronisława">
+  <div class="content">
+    <div class="txt">
+      <div class="kicker">Umowa sióstr</div>
+      <h2>Siostrzany <em>pakt</em></h2>
+      <ul class="pts">
+        <li>Maria zarabia i opłaca studia medyczne <b>Bronisławy w Paryżu</b></li>
+        <li>Potem Bronia pomoże jej – i dotrzymuje słowa</li>
+        <li>Pierwsze doświadczenia w laboratorium <b>Muzeum Przemysłu i Rolnictwa</b> w Warszawie</li>
+      </ul>
+    </div>
+    <figure class="photo" style="--r:-2deg"><span class="mat"></span>
+      <div class="media" data-id="bronislawa" data-desc="Bronisława Dłuska, siostra Marii"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Bronisława Dłuska z Skłodowskich</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 10. PARYŻ 1891 (film) -->
+<section class="slide paper" data-chapter="Paryż">
+  <div class="year">1891</div>
+  <div class="content rev">
+    <div class="txt">
+      <div class="kicker">Rozdział II · Paryż</div>
+      <h2>Wyjazd <em>do Paryża</em></h2>
+      <ul class="pts">
+        <li><b>Listopad 1891</b> – 24-letnia Maria przyjeżdża do Paryża</li>
+        <li>Zapisuje się na Sorbonę jako „Marie Sklodowska”</li>
+        <li>Mieszka w zimnej mansardzie w Dzielnicy Łacińskiej, często o chlebie i herbacie</li>
+      </ul>
+    </div>
+    <figure class="photo wide" style="--r:-1.4deg"><span class="mat"></span>
+      <div class="media" data-id="film_paryz_lumiere" data-kind="video" data-desc="Paryż lat 90. XIX wieku – filmy braci Lumière"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Paryż oczami braci Lumière</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 11. SORBONA (film) -->
+<section class="slide paper" data-chapter="Sorbona">
+  <div class="content">
+    <div class="txt">
+      <div class="kicker">Wydział Nauk</div>
+      <h2>Studia <em>na Sorbonie</em></h2>
+      <ul class="pts">
+        <li>Jedna z nielicznych kobiet na wydziale nauk ścisłych</li>
+        <li><b>1893</b> – licencjat z fizyki, pierwsza na liście</li>
+        <li><b>1894</b> – licencjat z matematyki, druga</li>
+        <li>Naukę ułatwia jej <b>stypendium Aleksandrowiczów</b></li>
+      </ul>
+    </div>
+    <figure class="photo wide" style="--r:1.6deg"><span class="mat"></span>
+      <div class="media" data-id="film_paryz_1900" data-kind="video" data-desc="Paryż około 1900 roku – ulice, Wystawa Światowa"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Paryż na przełomie wieków</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 12. PIOTR CURIE -->
+<section class="slide paper" data-chapter="Piotr">
+  <div class="year">1894</div>
+  <div class="content rev">
+    <div class="txt">
+      <div class="kicker">Spotkanie</div>
+      <h2>Piotr <em>Curie</em></h2>
+      <ul class="pts">
+        <li>Poznają się wiosną 1894 – Maria szuka miejsca do badań nad magnetyzmem stali</li>
+        <li>Piotr: fizyk, współodkrywca <b>piezoelektryczności</b></li>
+      </ul>
+      <p class="quote rv">„Byłoby rzeczą piękną przejść razem życie, zahipnotyzowani naszymi marzeniami”<small>z listu Piotra do Marii</small></p>
+    </div>
+    <figure class="photo" style="--r:-2deg"><span class="mat"></span>
+      <div class="media" data-id="piotr" data-desc="portret Piotra Curie"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Piotr Curie (1859–1906)</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 13. ŚLUB -->
+<section class="slide paper" data-chapter="Ślub">
+  <div class="year">1895</div>
+  <div class="content">
+    <div class="txt">
+      <div class="kicker">26 lipca 1895</div>
+      <h2>Ślub <em>w Sceaux</em></h2>
+      <ul class="pts">
+        <li>Skromny ślub cywilny – bez obrączek i białej sukni</li>
+        <li>Granatowa suknia posłuży potem jako strój do laboratorium</li>
+        <li>Podróż poślubna <b>na rowerach</b> po Francji</li>
+        <li><b>1897</b> – na świat przychodzi córka Irène</li>
+      </ul>
+    </div>
+    <figure class="photo wide" style="--r:2deg"><span class="mat"></span>
+      <div class="media" data-id="slub_rowery" data-desc="Maria i Piotr Curie z rowerami, 1895"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Maria i Piotr z rowerami</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 14. PROMIENIE -->
+<section class="slide paper" data-chapter="Promienie">
+  <div class="year">1896</div>
+  <div class="content rev">
+    <div class="txt">
+      <div class="kicker">Rozdział III · Odkrycia</div>
+      <h2>Tajemnicze <em>promienie</em></h2>
+      <ul class="pts">
+        <li><b>1895</b> Röntgen odkrywa promienie X, <b>1896</b> Becquerel – promieniowanie uranu</li>
+        <li>Maria wybiera ten temat na doktorat</li>
+        <li>Mierzy słabe prądy <b>elektrometrem braci Curie</b></li>
+        <li>Wniosek: promieniowanie to właściwość samych atomów</li>
+      </ul>
+    </div>
+    <figure class="photo" style="--r:-1.6deg"><span class="mat"></span>
+      <div class="media" data-id="elektrometr" data-desc="elektrometr i kryształ piezoelektryczny Curie"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Aparatura pomiarowa Curie</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 15. SZOPA (film) -->
+<section class="slide paper" data-chapter="Laboratorium">
+  <div class="content">
+    <div class="txt">
+      <div class="kicker">Rue Lhomond, Paryż</div>
+      <h2>Laboratorium <em>w szopie</em></h2>
+      <ul class="pts">
+        <li>Nieszczelna szopa przy Szkole Fizyki i Chemii Przemysłowej</li>
+        <li>Zimą temperatura w środku spada do ok. 6°C</li>
+        <li>Ręczna przeróbka ton <b>blendy smolistej</b> z Joachimsthalu</li>
+      </ul>
+      <p class="quote rv" style="font-size:32px">„Mieszałam wrzącą masę żelaznym prętem niemal mojego wzrostu”<small>Maria Curie, wspomnienia</small></p>
+    </div>
+    <figure class="photo wide" style="--r:1.4deg"><span class="mat"></span>
+      <div class="media" data-id="film_laboratorium" data-kind="video" data-desc="dawne laboratorium chemiczne – praca przy aparaturze"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Dawne laboratorium chemiczne</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 16. POLON (szkło) -->
+<section class="slide glass-slide" data-chapter="Polon">
+  <div class="bgimg" data-id="laboratorium_curie" data-desc="Maria i Piotr Curie w laboratorium"></div>
+  <div class="glass-wrap center">
+    <div class="glass element"><span class="z">84</span><span class="sym">Po</span><span class="nm">polon</span></div>
+    <div class="glass" style="max-width:1000px">
+      <div class="kicker">Lipiec 1898</div>
+      <h2>Odkrycie <em>polonu</em></h2>
+      <ul class="pts">
+        <li>Nowy pierwiastek, setki razy aktywniejszy od uranu</li>
+        <li>Nazwany na cześć <b>zniewolonej Polski</b></li>
+        <li>W tej samej pracy pada nowe słowo: <b>„radioaktywność”</b></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 17. RAD (szkło + film) -->
+<section class="slide glass-slide" data-chapter="Rad">
+  <div class="bgimg" data-id="laboratorium_curie" data-desc="Maria i Piotr Curie w laboratorium"></div>
+  <div class="glass-wrap">
+    <div class="glass" style="flex:1">
+      <div class="kicker">26 grudnia 1898</div>
+      <h2>Odkrycie <em>radu</em></h2>
+      <ul class="pts">
+        <li>Ogłoszone wraz z chemikiem Gustave’em Bémontem</li>
+        <li>Nazwa od łacińskiego <b>radius – „promień”</b></li>
+        <li>Rad świeci w ciemności nikłym, <b>błękitnawym blaskiem</b></li>
+      </ul>
+    </div>
+    <div class="glass media-glass" style="flex-basis:740px">
+      <div class="media" data-id="film_promieniotworczosc" data-kind="video" data-desc="świecenie radu / promieniotwórczość – archiwalny film naukowy"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 18. IZOLACJA RADU I DOKTORAT -->
+<section class="slide paper" data-chapter="Izolacja radu">
+  <div class="year">1902</div>
+  <div class="content rev">
+    <div class="txt">
+      <div class="kicker">Cztery lata pracy</div>
+      <h2>Gram po <em>gramie</em></h2>
+      <ul class="pts">
+        <li><b>1902</b> – z kilku ton odpadów rudy uzyskuje <b>0,1 g chlorku radu</b></li>
+        <li>Pierwsze wyznaczenie masy atomowej radu</li>
+        <li><b>1903</b> – obrona doktoratu „Badania nad substancjami radioaktywnymi”</li>
+        <li>Curie nie patentują metody – oddają ją światu</li>
+      </ul>
+    </div>
+    <figure class="photo" style="--r:2deg"><span class="mat"></span>
+      <div class="media" data-id="castaigne" data-desc="„Curie i rad” – ilustracja André Castaigne’a, 1904"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Piotr i Maria przy pracy – ilustracja z 1904 r.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 19. NOBEL 1903 (szkło) -->
+<section class="slide glass-slide" data-chapter="Nobel z fizyki">
+  <div class="bgimg" data-id="portret_mlody" data-desc="Maria Curie, ok. 1903"></div>
+  <div class="glass-wrap">
+    <div class="glass" style="max-width:1150px">
+      <div class="kicker">Sztokholm · 1903</div>
+      <h2>Nagroda Nobla <em>z fizyki</em></h2>
+      <ul class="pts">
+        <li>Wspólnie z Henrim Becquerelem i Piotrem Curie</li>
+        <li>Komitet chciał pominąć Marię – <b>Piotr upomniał się o nią</b></li>
+        <li><b>Pierwsza kobieta</b> w historii z Nagrodą Nobla</li>
+      </ul>
+    </div>
+    <div style="flex:1;align-self:flex-end;text-align:right;font:italic 700 260px/1 var(--serif-d);color:rgba(255,240,210,.18)" class="rv">1903</div>
+  </div>
+</section>
+
+<!-- 20. CÓRKI -->
+<section class="slide paper" data-chapter="Córki">
+  <div class="content">
+    <div class="txt">
+      <div class="kicker">Rodzina Curie</div>
+      <h2>Matka <em>dwóch córek</em></h2>
+      <ul class="pts">
+        <li><b>Irène</b> (ur. 1897) – przyszła laureatka Nobla z chemii</li>
+        <li><b>Ève</b> (ur. 1904) – pisarka, autorka biografii matki</li>
+        <li>Z przyjaciółmi-profesorami tworzy dla dzieci domową szkołę – „Kooperatywę”</li>
+      </ul>
+    </div>
+    <figure class="photo" style="--r:-2.2deg"><span class="mat"></span>
+      <div class="media" data-id="corki" data-desc="Maria Curie z córkami Irène i Ève"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Maria z Irène i Ève</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 21. 1906 -->
+<section class="slide paper" data-chapter="1906">
+  <div class="year">1906</div>
+  <div class="content rev">
+    <div class="txt">
+      <div class="kicker">Tragedia i nowy początek</div>
+      <h2>Rok <em>1906</em></h2>
+      <ul class="pts">
+        <li><b>19 kwietnia</b> – Piotr ginie pod kołami konnego wozu na rue Dauphine</li>
+        <li>Maria prowadzi dziennik, pisząc w nim do zmarłego męża</li>
+        <li>Przejmuje jego katedrę – <b>pierwsza kobieta wykładająca na Sorbonie</b></li>
+      </ul>
+    </div>
+    <figure class="photo" style="--r:1.8deg"><span class="mat"></span>
+      <div class="media" data-id="maria_1906" data-desc="Maria Curie w laboratorium, ok. 1906"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Maria Curie po śmierci Piotra</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 22. NOBEL 1911 (szkło) -->
+<section class="slide glass-slide" data-chapter="Nobel z chemii">
+  <div class="bgimg" data-id="portret_nobel" data-desc="Maria Curie – zdjęcie noblowskie, 1911"></div>
+  <div class="glass-wrap" style="justify-content:flex-end">
+    <div class="glass" style="max-width:1150px">
+      <div class="kicker">Sztokholm · 1911</div>
+      <h2>Drugi Nobel – <em>z chemii</em></h2>
+      <ul class="pts">
+        <li>Za odkrycie polonu i radu oraz wyodrębnienie radu</li>
+        <li>Pierwsza osoba z <b>dwiema Nagrodami Nobla</b></li>
+        <li>Odbiera ją mimo prasowej nagonki we Francji</li>
+        <li><b>1910</b> – z André Debierne’em otrzymuje czysty rad metaliczny</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 23. INSTYTUT RADOWY (szkło + film) -->
+<section class="slide glass-slide" data-chapter="Instytut Radowy">
+  <div class="bgimg" data-id="instytut_paryz" data-desc="Instytut Radowy w Paryżu"></div>
+  <div class="glass-wrap">
+    <div class="glass media-glass">
+      <div class="media" data-id="film_curie_archiwum" data-kind="video" data-desc="archiwalne nagranie Marii Curie – Instytut Radowy w Paryżu"></div>
+    </div>
+    <div class="glass" style="flex:1">
+      <div class="kicker">Paryż · 1914</div>
+      <h2>Instytut <em>Radowy</em></h2>
+      <ul class="pts">
+        <li>Laboratorium fizyki i chemii pod kierunkiem Marii</li>
+        <li>Pracownia biologii – badania nad <b>leczeniem nowotworów</b></li>
+        <li>Dziś: <b>Institut Curie</b></li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 24. I WOJNA (film) -->
+<section class="slide paper" data-chapter="I wojna światowa">
+  <div class="year">1914</div>
+  <div class="content">
+    <div class="txt">
+      <div class="kicker">Rozdział IV · Wojna</div>
+      <h2>„Małe <em>Curie”</em></h2>
+      <ul class="pts">
+        <li>Tworzy ruchome stacje rentgenowskie – <b>petites Curies</b></li>
+        <li>Sama prowadzi auto i obsługuje aparaturę, z 17-letnią Irène</li>
+        <li>Ok. <b>20 ambulansów</b> i 200 stałych pracowni RTG</li>
+        <li>Ponad <b>milion badań</b> rannych żołnierzy</li>
+      </ul>
+    </div>
+    <figure class="photo wide" style="--r:-1.6deg"><span class="mat"></span>
+      <div class="media" data-id="film_wojna" data-kind="video" data-desc="I wojna światowa – ambulanse i szpitale polowe"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Front zachodni, 1914–1918</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 25. RTG (film) -->
+<section class="slide paper" data-chapter="Radiologia">
+  <div class="content rev">
+    <div class="txt">
+      <div class="kicker">Nauka w służbie rannych</div>
+      <h2>Szkoła <em>radiologów</em></h2>
+      <ul class="pts">
+        <li>Szkoli ok. <b>150 kobiet</b> na operatorki aparatów RTG</li>
+        <li>Promienie X pozwalają lekarzom zlokalizować odłamki i kule</li>
+        <li>Doświadczenia opisuje w książce <b>„La Radiologie et la guerre”</b> (1921)</li>
+      </ul>
+    </div>
+    <figure class="photo wide" style="--r:1.5deg"><span class="mat"></span>
+      <div class="media" data-id="film_rtg" data-kind="video" data-desc="dawny aparat rentgenowski w działaniu"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Wczesny aparat rentgenowski</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 26. AMERYKA (film) -->
+<section class="slide paper" data-chapter="Ameryka">
+  <div class="year">1921</div>
+  <div class="content">
+    <div class="txt">
+      <div class="kicker">Stany Zjednoczone</div>
+      <h2>Gram radu <em>z Ameryki</em></h2>
+      <ul class="pts">
+        <li>Dziennikarka <b>Marie Meloney</b> organizuje zbiórkę wśród Amerykanek</li>
+        <li><b>20 maja 1921</b> prezydent Harding wręcza jej 1 gram radu</li>
+        <li>Druga podróż (1929) – dar na instytut w Warszawie</li>
+      </ul>
+    </div>
+    <figure class="photo wide" style="--r:-1.8deg"><span class="mat"></span>
+      <div class="media" data-id="film_usa_1921" data-kind="video" data-desc="Maria Curie w USA, 1921 – kronika filmowa"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Kronika filmowa, 1921</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 27. WARSZAWA 1932 (film) -->
+<section class="slide paper" data-chapter="Warszawa">
+  <div class="year">1932</div>
+  <div class="content rev">
+    <div class="txt">
+      <div class="kicker">Powrót do korzeni</div>
+      <h2>Instytut Radowy <em>w Warszawie</em></h2>
+      <ul class="pts">
+        <li><b>1925</b> – kładzie kamień węgielny przy ul. Wawelskiej</li>
+        <li><b>1932</b> – otwarcie; dyrektorką zostaje siostra Bronisława</li>
+        <li>Dziś: Narodowy Instytut Onkologii im. Marii Skłodowskiej-Curie</li>
+      </ul>
+    </div>
+    <figure class="photo wide" style="--r:1.6deg"><span class="mat"></span>
+      <div class="media" data-id="film_warszawa_1930" data-kind="video" data-desc="Warszawa lat 30. XX wieku"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Warszawa międzywojenna</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 28. ŚMIERĆ I PANTEON -->
+<section class="slide paper" data-chapter="1934 · 1995">
+  <div class="year">1934</div>
+  <div class="content">
+    <div class="txt">
+      <div class="kicker">4 lipca 1934</div>
+      <h2>Ostatnie <em>lata</em></h2>
+      <ul class="pts">
+        <li>Umiera w sanatorium Sancellemoz we francuskich Alpach</li>
+        <li>Przyczyna: <b>anemia aplastyczna</b> – skutek lat napromieniowania</li>
+        <li><b>1995</b> – prochy Marii i Piotra spoczywają w <b>Panteonie</b></li>
+        <li>Jej notatki są wciąż radioaktywne</li>
+      </ul>
+    </div>
+    <figure class="photo" style="--r:-2deg"><span class="mat"></span>
+      <div class="media" data-id="panteon" data-desc="Panteon w Paryżu"></div>
+      <span class="corner tl"></span><span class="corner br"></span>
+      <figcaption>Panteon w Paryżu</figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- 29. DZIEDZICTWO (szkło) -->
+<section class="slide glass-slide" data-chapter="Dziedzictwo">
+  <div class="bgimg" data-id="portret_1920" data-desc="portret Marii Curie, ok. 1920"></div>
+  <div class="glass-wrap">
+    <div class="glass" style="max-width:1240px">
+      <div class="kicker">To, co pozostało</div>
+      <h2>Dziedzictwo</h2>
+      <ul class="pts">
+        <li>Pierwiastek <b>kiur (Cm, 96)</b> i dawna jednostka aktywności – kiur</li>
+        <li>Fundamenty radioterapii, medycyny nuklearnej i fizyki jądrowej</li>
+        <li>Irène i Frédéric Joliot-Curie – <b>Nobel 1935</b></li>
+        <li>Instytuty Curie w Paryżu i Warszawie leczą i badają do dziś</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- 30. PODSUMOWANIE (szkło) -->
+<section class="slide glass-slide" data-chapter="Podsumowanie">
+  <div class="bgimg" data-id="laboratorium_curie" data-desc="Maria i Piotr Curie w laboratorium"></div>
+  <div class="glass-wrap center" style="flex-direction:column;gap:0">
+    <div class="glass" style="max-width:1380px;text-align:center;padding:76px 100px">
+      <div class="kicker" style="justify-content:center">Podsumowanie</div>
+      <p style="font:italic 400 58px/1.3 var(--serif-d);color:#fff8ec">„W życiu nie ma niczego, czego należy się bać. Należy to tylko zrozumieć.”</p>
+      <p style="font:600 22px/1 var(--serif-t);letter-spacing:.3em;text-transform:uppercase;color:var(--gold-l);margin-top:28px">Maria Skłodowska-Curie</p>
+    </div>
+    <div class="stats">
+      <div class="glass stat"><div class="n">2</div><div class="l">nowe pierwiastki</div></div>
+      <div class="glass stat"><div class="n">2</div><div class="l">Nagrody Nobla</div></div>
+      <div class="glass stat"><div class="n">1</div><div class="l">nowa dziedzina nauki</div></div>
+    </div>
+    <p class="rv" style="font:italic 500 34px/1 var(--serif-t);color:rgba(255,240,215,.75);margin-top:44px">Dziękuję za uwagę</p>
+  </div>
+</section>
+
+  <div class="grain"></div><div class="vignette"></div>
+  <div class="scratch s1"></div><div class="scratch s2"></div>
+  <div class="progress"></div>
+</div></div>
+
+<div id="ui">
+  <button id="bPrev" title="Poprzedni (←)">‹</button>
+  <button id="bNext" title="Następny (→)">›</button>
+  <button id="bFs" title="Pełny ekran (F)">⛶</button>
+  <button id="bInfo" title="Źródła materiałów (I)">i</button>
+</div>
+<div id="hint">← → slajdy · F pełny ekran · I źródła</div>
+<div id="credits"><div class="box">
+  <h3>Źródła materiałów</h3>
+  <p>Zdjęcia i filmy pochodzą z domeny publicznej lub wolnych licencji (Wikimedia Commons, Internet Archive). Lista generowana przez skrypt <code>pobierz_media.py</code>. Kliknij poza oknem lub naciśnij I, aby zamknąć.</p>
+  <ul id="creditList"></ul>
+</div></div>
+
+<script>window.MEDIA = {};</script>
+<script src="media/media.js"></script>
+<script>
+(function(){
+  const stage = document.getElementById('stage');
+  const slides = [...document.querySelectorAll('.slide')];
+  const progress = document.querySelector('.progress');
+  const MEDIA = window.MEDIA || {};
+  let cur = 0;
+
+  /* skalowanie 16:9 */
+  function fit(){
+    const s = Math.min(innerWidth/1920, innerHeight/1080);
+    stage.style.transform = `scale(${s}) translate(-50%,-50%)`;
+  }
+  addEventListener('resize', fit); fit();
+
+  /* stopki + kolejność animacji */
+  slides.forEach((sl,i)=>{
+    const f = document.createElement('div'); f.className='foot';
+    f.innerHTML = `<span>Maria Skłodowska-Curie · ${sl.dataset.chapter||''}</span><span class="num">${i+1} / ${slides.length}</span>`;
+    sl.appendChild(f);
+    let k = 0;
+    sl.querySelectorAll('.kicker, h1, h2, ul.pts li, .quote, .photo, .glass, .stat').forEach(el=>{
+      if (el.closest('.stats') && !el.classList.contains('stat')) return;
+      el.classList.add('rv'); el.style.setProperty('--i', k++);
+    });
+    sl.querySelectorAll('.rv:not([style*="--i"])').forEach(el=>el.style.setProperty('--i', k++));
+  });
+
+  /* media: najpierw media.js, potem nazwy konwencyjne, na końcu placeholder */
+  function candidates(id, kind){
+    const out = [];
+    if (MEDIA[id] && MEDIA[id].file) out.push('media/' + MEDIA[id].file);
+    const exts = kind === 'video' ? ['webm','mp4'] : ['jpg','jpeg','png','webp'];
+    exts.forEach(e => out.push(`media/${id}.${e}`));
+    return [...new Set(out)];
+  }
+  function placeholder(box, kind, desc){
+    const word = kind === 'video' ? 'film' : 'zdjęcie';
+    box.innerHTML = `<div class="ph"><div class="ph-ico">${kind==='video'?'▶':'❖'}</div>
+      <div class="ph-txt">[tu ${word}: ${desc}]</div><div class="ph-sub">miejsce na materiał archiwalny</div></div>`;
+  }
+  function credit(box, id){
+    const m = MEDIA[id]; if (!m) return;
+    const cap = box.closest('.photo')?.querySelector('figcaption');
+    if (cap && !cap.querySelector('small')) {
+      const s = document.createElement('small');
+      s.textContent = [m.author, m.license].filter(Boolean).join(' · ');
+      cap.appendChild(s);
+    }
+  }
+  function loadImg(box, id, desc, isBg){
+    const list = candidates(id, 'img'); let n = 0;
+    const img = new Image(); img.className = 'pic'; img.alt = desc;
+    img.onload = () => { box.innerHTML=''; box.appendChild(img); if(!isBg) credit(box,id); };
+    img.onerror = () => { n < list.length ? (img.src = list[n++]) : (placeholder(box,'img',desc), isBg && note(box,desc)); };
+    placeholder(box, 'img', desc); if (isBg) note(box, desc);
+    img.src = list[n++];
+  }
+  function note(box, desc){ const d=document.createElement('div'); d.className='bgnote'; d.textContent=`[tło: ${desc}]`; box.appendChild(d); }
+
+  const playSvg = '<svg viewBox="0 0 24 24"><path d="M6 4l15 8-15 8z"/></svg>';
+  function loadVideo(box, id, desc){
+    const list = candidates(id, 'video'); let n = 0;
+    placeholder(box, 'video', desc);
+    const v = document.createElement('video');
+    Object.assign(v, {muted:true, loop:true, playsInline:true, preload:'metadata'});
+    v.className = 'pic';
+    v.addEventListener('error', () => { n < list.length ? (v.src = list[n++]) : placeholder(box,'video',desc); }, true);
+    v.addEventListener('loadedmetadata', () => {
+      box.innerHTML = '';
+      box.appendChild(v);
+      box.insertAdjacentHTML('beforeend', `<span class="filmtag">▣ archiwum</span>
+        <button class="playbtn" aria-label="Odtwórz">${playSvg}</button>
+        <div class="vctl"><button data-a="pause">Pauza</button><button data-a="mute">Dźwięk: wył.</button></div>`);
+      box.querySelector('.playbtn').onclick = e => { e.stopPropagation(); v.play(); };
+      box.querySelector('[data-a=pause]').onclick = e => { e.stopPropagation(); v.paused ? v.play() : v.pause(); };
+      const mb = box.querySelector('[data-a=mute]');
+      mb.onclick = e => { e.stopPropagation(); v.muted = !v.muted; mb.textContent = 'Dźwięk: ' + (v.muted ? 'wył.' : 'wł.'); };
+      v.onplay = () => { box.classList.add('playing'); box.querySelector('[data-a=pause]').textContent='Pauza'; };
+      v.onpause = () => { box.classList.remove('playing'); };
+      credit(box, id);
+    }, {once:true});
+    v.src = list[n++];
+  }
+  document.querySelectorAll('.media').forEach(b => {
+    const {id, kind, desc} = b.dataset;
+    kind === 'video' ? loadVideo(b, id, desc) : loadImg(b, id, desc, false);
+  });
+  document.querySelectorAll('.bgimg').forEach(b => loadImg(b, b.dataset.id, b.dataset.desc, true));
+
+  /* nawigacja */
+  function go(i){
+    i = Math.max(0, Math.min(slides.length-1, i));
+    slides.forEach((s,k)=>{ s.classList.toggle('active', k===i); s.classList.toggle('before', k<i); });
+    if (i !== cur) slides[cur].querySelectorAll('video').forEach(v=>v.pause());
+    cur = i;
+    progress.style.width = ((i+1)/slides.length*100) + '%';
+    history.replaceState(null, '', '#' + (i+1));
+  }
+  const next = () => go(cur+1), prev = () => go(cur-1);
+  function fs(){ document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen?.(); }
+  const cr = document.getElementById('credits');
+  function info(){
+    const ul = document.getElementById('creditList'); ul.innerHTML='';
+    const seen = new Set();
+    document.querySelectorAll('[data-id]').forEach(el=>{
+      const id = el.dataset.id; if (seen.has(id)) return; seen.add(id);
+      const m = MEDIA[id], li = document.createElement('li');
+      if (m) li.innerHTML = `<b>${m.title||id}</b> – ${m.author||'autor nieznany'} · ${m.license||''} · <a href="${m.source}" target="_blank" rel="noopener">źródło</a>`;
+      else { li.className='miss'; li.textContent = `${el.dataset.desc} – brak pliku (placeholder)`; }
+      ul.appendChild(li);
+    });
+    cr.classList.toggle('open');
+  }
+  cr.addEventListener('click', e => { if (e.target === cr) cr.classList.remove('open'); });
+
+  addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT') return;
+    switch(e.key){
+      case 'ArrowRight': case 'ArrowDown': case 'PageDown': case ' ': case 'Enter': e.preventDefault(); next(); break;
+      case 'ArrowLeft': case 'ArrowUp': case 'PageUp': case 'Backspace': e.preventDefault(); prev(); break;
+      case 'Home': go(0); break;
+      case 'End': go(slides.length-1); break;
+      case 'f': case 'F': fs(); break;
+      case 'i': case 'I': info(); break;
+      case 'Escape': cr.classList.remove('open'); break;
+    }
+  });
+  document.getElementById('bNext').onclick = next;
+  document.getElementById('bPrev').onclick = prev;
+  document.getElementById('bFs').onclick = fs;
+  document.getElementById('bInfo').onclick = info;
+
+  let tx = null;
+  addEventListener('touchstart', e => tx = e.touches[0].clientX, {passive:true});
+  addEventListener('touchend', e => { if (tx===null) return; const d = e.changedTouches[0].clientX - tx; if (Math.abs(d)>50) d<0?next():prev(); tx=null; });
+
+  const ui = document.getElementById('ui'); let t;
+  addEventListener('mousemove', () => { ui.classList.add('show'); clearTimeout(t); t = setTimeout(()=>ui.classList.remove('show'), 2200); });
+  setTimeout(()=>document.getElementById('hint').style.opacity=0, 4500);
+
+  go((parseInt(location.hash.slice(1))||1) - 1);
+})();
+</script>
+</body>
+</html>
