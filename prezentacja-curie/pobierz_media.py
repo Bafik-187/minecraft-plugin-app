@@ -219,6 +219,18 @@ def trim(path):
         os.remove(tmp)
 
 
+def commons_names():
+    """Nazwy plików z media/commons.js – sprawdzane jako pierwsze."""
+    path = os.path.join(OUT, "commons.js")
+    out = {}
+    if os.path.exists(path):
+        for line in open(path, encoding="utf-8"):
+            m = re.match(r'\s*(\w+):\s*(\[.*\])', line)
+            if m:
+                out[m.group(1)] = ["File:" + n for n in json.loads(m.group(2))]
+    return out
+
+
 def main():
     force = "--force" in sys.argv
     os.makedirs(OUT, exist_ok=True)
@@ -230,7 +242,9 @@ def main():
         if m:
             db = json.loads(m.group(1))
     used = {v.get("_key") for v in db.values()}
+    extra = commons_names()
     for sid, (kind, titles, queries) in SLOTS.items():
+        titles = extra.get(sid, []) + [x for x in titles if x not in extra.get(sid, [])]
         if sid in db and os.path.exists(os.path.join(OUT, db[sid]["file"])):
             print(f"✓ {sid} (już jest)"); continue
         print(f"→ {sid}")

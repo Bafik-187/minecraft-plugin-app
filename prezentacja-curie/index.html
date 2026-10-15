@@ -1033,6 +1033,7 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
 
 <script>window.MEDIA = {};</script>
 <script src="media/media.js"></script>
+<script src="media/commons.js"></script>
 <script>
 (function(){
   const stage = document.getElementById('stage');
@@ -1062,11 +1063,14 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
   });
 
   /* media: najpierw media.js, potem nazwy konwencyjne, na końcu placeholder */
+  const COMMONS = window.COMMONS || {}, ONLINE = {};
+  const commonsUrl = n => 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(n.replace(/ /g,'_')) + '?width=1600';
   function candidates(id, kind){
     const out = [];
     if (MEDIA[id] && MEDIA[id].file) out.push('media/' + MEDIA[id].file);
     const exts = kind === 'video' ? ['webm','mp4'] : ['jpg','jpeg','png','webp'];
     exts.forEach(e => out.push(`media/${id}.${e}`));
+    if (kind !== 'video') (COMMONS[id] || []).forEach(n => out.push(commonsUrl(n)));
     return [...new Set(out)];
   }
   function placeholder(box, kind, desc){
@@ -1075,7 +1079,7 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
       <div class="ph-txt">[tu ${word}: ${desc}]</div><div class="ph-sub">miejsce na materiał archiwalny</div></div>`;
   }
   function credit(box, id){
-    const m = MEDIA[id]; if (!m) return;
+    const m = MEDIA[id] || ONLINE[id]; if (!m) return;
     const cap = box.closest('.photo')?.querySelector('figcaption');
     if (cap && !cap.querySelector('small')) {
       const s = document.createElement('small');
@@ -1086,7 +1090,11 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
   function loadImg(box, id, desc, isBg){
     const list = candidates(id, 'img'); let n = 0;
     const img = new Image(); img.className = 'pic'; img.alt = desc;
-    img.onload = () => { box.innerHTML=''; box.appendChild(img); if(!isBg) credit(box,id); };
+    img.onload = () => {
+      const k = img.src.indexOf('Special:FilePath/');
+      if (k > -1 && !MEDIA[id]) { const name = decodeURIComponent(img.src.slice(k+17).split('?')[0]);
+        ONLINE[id] = {title:name.replace(/_/g,' '), author:'Wikimedia Commons', license:'', source:'https://commons.wikimedia.org/wiki/File:'+name}; }
+      box.innerHTML=''; box.appendChild(img); if(!isBg) credit(box,id); };
     img.onerror = () => { n < list.length ? (img.src = list[n++]) : (placeholder(box,'img',desc), isBg && note(box,desc)); };
     placeholder(box, 'img', desc); if (isBg) note(box, desc);
     img.src = list[n++];
@@ -1140,8 +1148,8 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
     const seen = new Set();
     document.querySelectorAll('[data-id]').forEach(el=>{
       const id = el.dataset.id; if (seen.has(id)) return; seen.add(id);
-      const m = MEDIA[id], li = document.createElement('li');
-      if (m) li.innerHTML = `<b>${m.title||id}</b> – ${m.author||'autor nieznany'} · ${m.license||''} · <a href="${m.source}" target="_blank" rel="noopener">źródło</a>`;
+      const m = MEDIA[id] || ONLINE[id], li = document.createElement('li');
+      if (m) li.innerHTML = `<b>${m.title||id}</b> – ${[m.author||'autor nieznany', m.license].filter(Boolean).join(' · ')} · <a href="${m.source}" target="_blank" rel="noopener">źródło</a>`;
       else { li.className='miss'; li.textContent = `${el.dataset.desc} – brak pliku (placeholder)`; }
       ul.appendChild(li);
     });
@@ -1174,6 +1182,7 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
   addEventListener('mousemove', () => { ui.classList.add('show'); clearTimeout(t); t = setTimeout(()=>ui.classList.remove('show'), 2200); });
   setTimeout(()=>document.getElementById('hint').style.opacity=0, 4500);
 
+  addEventListener('hashchange', () => { const n = (parseInt(location.hash.slice(1))||1) - 1; if (n !== cur) go(n); });
   go((parseInt(location.hash.slice(1))||1) - 1);
 })();
 </script>
