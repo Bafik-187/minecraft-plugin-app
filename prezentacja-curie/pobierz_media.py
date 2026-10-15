@@ -220,14 +220,18 @@ def trim(path):
 
 
 def commons_names():
-    """Nazwy plików z media/commons.js – sprawdzane jako pierwsze."""
+    """Zweryfikowane nazwy plików z media/commons.js – sprawdzane jako pierwsze."""
     path = os.path.join(OUT, "commons.js")
     out = {}
     if os.path.exists(path):
         for line in open(path, encoding="utf-8"):
-            m = re.match(r'\s*(\w+):\s*(\[.*\])', line)
+            m = re.match(r'\s*(\w+):\s*\{f:(\[.*?\])', line)
             if m:
-                out[m.group(1)] = ["File:" + n for n in json.loads(m.group(2))]
+                out[m.group(1)] = ("img", ["File:" + n for n in json.loads(m.group(2))])
+                continue
+            m = re.match(r'\s*(\w+):\s*\{f:"([^"]+)"', line)
+            if m:
+                out[m.group(1)] = ("video", ["File:" + m.group(2)])
     return out
 
 
@@ -243,8 +247,12 @@ def main():
             db = json.loads(m.group(1))
     used = {v.get("_key") for v in db.values()}
     extra = commons_names()
-    for sid, (kind, titles, queries) in SLOTS.items():
-        titles = extra.get(sid, []) + [x for x in titles if x not in extra.get(sid, [])]
+    slots = dict(SLOTS)
+    for sid, (kind, names) in extra.items():
+        slots.setdefault(sid, (kind, [], []))
+    for sid, (kind, titles, queries) in slots.items():
+        first = extra.get(sid, (kind, []))[1]
+        titles = first + [x for x in titles if x not in first]
         if sid in db and os.path.exists(os.path.join(OUT, db[sid]["file"])):
             print(f"✓ {sid} (już jest)"); continue
         print(f"→ {sid}")
@@ -266,7 +274,7 @@ def main():
         print(f"   ✓ {m['title'][:70]}  [{m['license']}]")
         with open(js_path, "w", encoding="utf-8") as f:
             f.write("window.MEDIA = " + json.dumps(db, ensure_ascii=False, indent=1) + ";\n")
-    print(f"\nGotowe: {len(db)}/{len(SLOTS)} materiałów w {OUT}")
+    print(f"\nGotowe: {len(db)}/{len(slots)} materiałów w {OUT}")
 
 
 if __name__ == "__main__":

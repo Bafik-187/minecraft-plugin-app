@@ -1,26 +1,44 @@
-/* Zdjęcia z Wikimedia Commons (domena publiczna), ładowane online po nazwie pliku.
-   Dla każdego miejsca: lista nazw plików, sprawdzana po kolei. Pliki lokalne w media/ mają pierwszeństwo.
-   Nazwę można podmienić na dowolny plik z commons.wikimedia.org (bez przedrostka "File:"). */
+/* Zweryfikowane pliki z Wikimedia Commons, ładowane online po nazwie pliku.
+   f   – nazwy plików (sprawdzane po kolei), lic – licencja, by – autor/źródło.
+   Pliki lokalne w media/ (np. media/<id>.jpg) mają pierwszeństwo. */
 window.COMMONS = {
-  portret_1920:       ["Marie Curie c1920.jpg"],
-  portret_mlody:      ["Mariecurie.jpg", "Marie Curie 1903.jpg", "Marie Curie c. 1903.jpg"],
-  portret_nobel:      ["Marie Curie (Nobel-Chem).jpg", "Marie Curie 1911.jpg"],
-  piotr:              ["Pierre Curie by Dujardin c1906.jpg", "Pierre Curie.jpg"],
-  laboratorium_curie: ["Pierre and Marie Curie.jpg", "Pierre and Marie Curie in the laboratory.jpg"],
-  castaigne:          ["Curie and radium by Castaigne.jpg"],
-  slub_rowery:        ["Pierre Curie and Marie Sklodowska Curie, 1895.jpg", "Marie and Pierre Curie 1895.jpg", "Pierre and Marie Curie with bicycles.jpg"],
-  rodzina:            ["Władysław Skłodowski z córkami.jpg", "Wladyslaw Sklodowski with daughters.jpg", "Sklodowski family.jpg"],
-  ojciec:             ["Władysław Skłodowski.jpg", "Wladyslaw Sklodowski.jpg"],
-  matka:              ["Bronisława Skłodowska.jpg", "Bronislawa Sklodowska.jpg", "Bronisława z Boguskich Skłodowska.jpg"],
-  maria_uczennica:    ["Marie Sklodowska, 16 years old.jpg", "Maria Skłodowska 1883.jpg", "Marie Sklodowska 1883.jpg"],
-  bronislawa:         ["Bronisława Dłuska.jpg", "Bronislawa Dluska.jpg"],
-  szczuki:            ["Szczuki dwór.jpg", "Dwór w Szczukach.jpg"],
-  warszawa_kamienice: ["Warszawa Rynek Starego Miasta 1900.jpg", "Old Town Market Square Warsaw 1890s.jpg", "Rynek Starego Miasta w Warszawie.jpg"],
-  elektrometr:        ["Curie electrometer.jpg", "Curie's electrometer.jpg"],
-  corki:              ["Marie Curie and her daughters.jpg", "Marie Curie with daughters 1908.jpg"],
-  irene:              ["Irène Joliot-Curie Harcourt.jpg", "Irene Joliot-Curie.jpg", "Irène Joliot-Curie.jpg"],
-  eve:                ["Ève Curie 1937.jpg", "Eve Curie.jpg", "Ève Curie.jpg"],
-  maria_1906:         ["Marie Curie 1908.jpg", "Marie Curie laboratory.jpg", "Marie Curie in the laboratory.jpg"],
-  instytut_paryz:     ["Institut du radium.jpg", "Pavillon Curie.jpg", "Institut Curie, Paris.jpg"],
-  panteon:            ["Pantheon of Paris 007.JPG", "Panthéon Paris.jpg", "Le Panthéon (Paris).jpg"]
+  /* --- portrety Marii --- */
+  portret_1920:       {f:["Marie Curie c1920.jpg"], lic:"domena publiczna", by:"autor nieznany, ok. 1920"},
+  portret_mlody:      {f:["Marie Curie 1903.jpg", "Mariecurie.jpg"], lic:"domena publiczna", by:"zdjęcie noblowskie, 1903"},
+  portret_nobel:      {f:["Marie Curie (Nobel-Chem).jpg"], lic:"domena publiczna", by:"Fundacja Nobla, 1911"},
+  student_1895:       {f:["Marie Sklodowska, étudiante, en 1895.jpg"], lic:"domena publiczna", by:"Maria jako studentka w Paryżu, 1895"},
+  maria_uczennica:    {f:["Marie Sklodowska 16 years old.jpg"], lic:"domena publiczna", by:"z książki H. Skłodowskiej-Szalay, 1883"},
+  siostry_1886:       {f:["Maria Sklodowska et sa sœur Bronislawa en 1886.jpg"], lic:"domena publiczna", by:"Maria i Bronisława, ok. 1886"},
+  maria_1906:         {f:["Marie Curie in her laboratory.jpg"], lic:"domena publiczna", by:"autor nieznany, 1900s"},
+  /* --- rodzina --- */
+  rodzice:            {f:["Rodzice Marii Skłodowskiej (ok. 1870).jpg"], lic:"domena publiczna", by:"AGH, ok. 1870"},
+  rodzina:            {f:["Sklodowski Family Wladyslaw and his daughters Maria Bronislawa Helena.jpg"], lic:"domena publiczna", by:"z książki H. Skłodowskiej-Szalay, 1890"},
+  bronislawa:         {f:["Bronisława Dłuska (-1901).jpg"], lic:"domena publiczna", by:"Bronisława Dłuska, przed 1901"},
+  piotr:              {f:["Pierre Curie by Dujardin c1906.jpg", "Pierrecurie.jpg"], lic:"domena publiczna", by:"Dujardin, ok. 1906"},
+  slub_rowery:        {f:["Pierre et Marie Curie devant leur maison de Sceaux en 1895.jpg", "Pierre Curie et Marie Sklodowska Curie 1895.jpg"], lic:"zob. stronę pliku", by:"Boyer-Viollet, 1895 (archiwum ACJC)"},
+  corki:              {f:["Eve, Marie, Irene Curie 1908.jpg"], lic:"CC BY 4.0", by:"Wellcome Collection, 1908"},
+  irene:              {f:["Irène Joliot-Curie (1897-1956), c. 1935.jpg"], lic:"bez znanych ograniczeń", by:"Smithsonian Institution Archives"},
+  eve:                {f:["Ève Curie.jpg"], lic:"domena publiczna (USA)", by:"1921"},
+  /* --- nauka --- */
+  laboratorium_curie: {f:["Pierre and Marie Curie.jpg"], lic:"domena publiczna", by:"przed 1906"},
+  lab_wellcome:       {f:["Pierre and Marie Curie at work in laboratory Wellcome L0001761.jpg"], lic:"CC BY 4.0", by:"Wellcome Collection"},
+  castaigne:          {f:["Curie and radium by Castaigne.jpg"], lic:"domena publiczna", by:"André Castaigne, 1904"},
+  elektrometr:        {f:["Quadrant electrometer built by Pierre Curie, 1880-1890. (9660571325).jpg", "Electrometer (quadrant type) constructed by Pierre Curie. Wellcome M0011486.jpg"], lic:"zob. stronę pliku", by:"Science Museum London"},
+  aparatura:          {f:["Original apparatus belonging to Marie Curie Wellcome M0011485.jpg"], lic:"CC BY 4.0", by:"Wellcome Collection"},
+  rad_pomiary:        {f:["Measurement of Radium tubes at the Raduim Institute. Wellcome M0015305.jpg"], lic:"CC BY 4.0", by:"Wellcome Collection"},
+  instytut_paryz:     {f:["MCP1642.jpg"], lic:"zob. stronę pliku", by:"Musée Curie, ok. 1920"},
+  /* --- wojna, Ameryka, Warszawa, pamięć --- */
+  rtg_ambulans:       {f:["Marie Curie - Mobile X-Ray-Unit.jpg"], lic:"domena publiczna", by:"z książki È. Curie „Madame Curie”, ok. 1915"},
+  rtg_dawny:          {f:["Early x-ray procedure.jpg"], lic:"zob. stronę pliku", by:"Wikimedia Commons"},
+  harding:            {f:["Pres. Warren G. Harding escorting Madame Curie down steps to south grounds of the White House LCCN93512088.jpg"], lic:"domena publiczna", by:"Library of Congress, 20 V 1921"},
+  dluska_1932:        {f:["Bronisława Dłuska (Instytut Radowy 1932).jpg"], lic:"domena publiczna", by:"otwarcie Instytutu Radowego, 1932"},
+  warszawa_kamienice: {f:["Warszawa-Rynek Starego Miasta-XIX.jpg"], lic:"domena publiczna", by:"autor nieznany, 1882–1888"},
+  panteon:            {f:["Panthéon Pierre et Marie Curie.JPG"], lic:"zob. stronę pliku", by:"zdjęcie własne autora, 2011"}
+};
+
+/* Zweryfikowane filmy z Wikimedia Commons (ładowane online). */
+window.COMMONS_VIDEO = {
+  film_paryz_lumiere: {f:"A Trip Through Paris, France, Late 1890s.webm", lic:"domena publiczna", by:"firma Lumière, 1896–1900"},
+  film_paryz_1900:    {f:"A Trip Through Paris, France, Late 1890s.webm", t:150, lic:"domena publiczna", by:"firma Lumière, 1896–1900"},
+  film_rtg:           {f:"Dr. MacIntyre's X-Ray film.webm", lic:"domena publiczna", by:"dr John Macintyre, 1896–1909"}
 };
