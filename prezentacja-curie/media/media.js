@@ -41,5 +41,54 @@ window.MEDIA = {
   "author": "Unknown authorUnknown author",
   "license": "Public domain",
   "source": "https://commons.wikimedia.org/wiki/File:Bronis%C5%82awa_D%C5%82uska_(-1901).jpg"
+ },
+ "piotr": {
+  "file": "piotr.jpg",
+  "title": "Pierre Curie by Dujardin c1906.jpg",
+  "author": "Dujardin",
+  "license": "Public domain",
+  "source": "https://commons.wikimedia.org/wiki/File:Pierre_Curie_by_Dujardin_c1906.jpg"
+ },
+ "slub_rowery": {
+  "file": "slub_rowery.jpg",
+  "title": "Pierre et Marie Curie devant leur maison de Sceaux en 1895.jpg",
+  "author": "Unknown authorUnknown author",
+  "license": "Public domain",
+  "source": "https://commons.wikimedia.org/wiki/File:Pierre_et_Marie_Curie_devant_leur_maison_de_Sceaux_en_1895.jpg"
+ },
+ "portret_1920": {
+  "file": "portret_1920.jpg",
+  "title": "Marie Curie c1920.jpg",
+  "author": "Henri Manuel",
+  "license": "Public domain",
+  "source": "https://commons.wikimedia.org/wiki/File:Marie_Curie_c1920.jpg"
+ },
+ "portret_mlody": {
+  "file": "portret_mlody.jpg",
+  "title": "Marie Curie 1903.jpg",
+  "author": "Nobel foundation",
+  "license": "Public domain",
+  "source": "https://commons.wikimedia.org/wiki/File:Marie_Curie_1903.jpg"
+ },
+ "student_1895": {
+  "file": "student_1895.jpg",
+  "title": "Marie Sklodowska, étudiante, en 1895.jpg",
+  "author": "Unknown authorUnknown author",
+  "license": "Public domain",
+  "source": "https://commons.wikimedia.org/wiki/File:Marie_Sklodowska,_%C3%A9tudiante,_en_1895.jpg"
+ },
+ "maria_1906": {
+  "file": "maria_1906.jpg",
+  "title": "Marie Curie in her laboratory.jpg",
+  "author": "Unknown authorUnknown author",
+  "license": "Public domain",
+  "source": "https://commons.wikimedia.org/wiki/File:Marie_Curie_in_her_laboratory.jpg"
+ },
+ "rodzice": {
+  "file": "rodzice.jpg",
+  "title": "Rodzice Marii Skłodowskiej (ok. 1870).jpg",
+  "author": "Unknown authorUnknown author",
+  "license": "Public domain",
+  "source": "https://commons.wikimedia.org/wiki/File:Rodzice_Marii_Sk%C5%82odowskiej_(ok._1870).jpg"
  }
 };
