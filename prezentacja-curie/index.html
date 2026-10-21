@@ -92,7 +92,7 @@ ul.pts li b{font-weight:700;color:var(--ink2)}
 .photo .corner.br{right:-14px;bottom:-14px;transform:rotate(180deg)}
 .photo .tape{position:absolute;top:-44px;left:50%;width:170px;height:46px;transform:translateX(-50%) rotate(3deg);z-index:5;
   background:rgba(235,220,180,.55);box-shadow:0 2px 6px rgba(0,0,0,.15);backdrop-filter:blur(1px)}
-img.pic,video.pic{width:100%;height:100%;object-fit:cover;display:block;filter:sepia(.75) contrast(1.06) brightness(.94) saturate(.9)}
+img.pic,video.pic{width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block;filter:sepia(.75) contrast(1.06) brightness(.94) saturate(.9)}
 
 /* ---------- placeholder ---------- */
 .ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;padding:40px;text-align:center;
@@ -1083,6 +1083,12 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
     return [...new Set(out)];
   }
   const remoteInfo = (id, src) => { const r = Object.entries(REMOTE).find(([u]) => src.split('#')[0] === new URL(u, location.href).href.split('#')[0]); if (r && !MEDIA[id]) ONLINE[id] = r[1]; };
+  function drop(box, desc){
+    const cam = box.closest('.cameo');
+    if (cam) { box.outerHTML = `<div class="ini">${(desc||'?').trim()[0].toUpperCase()}</div>`; return; }
+    const holder = box.closest('.photo, .filmstrip, .glass.media-glass') || (box.closest('.gz') ? box.parentElement : box);
+    holder.remove();
+  }
   function placeholder(box, kind, desc){
     const word = kind === 'video' ? 'film' : 'zdjęcie';
     box.innerHTML = `<div class="ph"><div class="ph-ico">${kind==='video'?'▶':'❖'}</div>
@@ -1103,8 +1109,8 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
     img.onload = () => {
       remoteInfo(id, img.src);
       box.innerHTML=''; box.appendChild(img); if(!isBg) credit(box,id); };
-    img.onerror = () => { n < list.length ? (img.src = list[n++]) : (placeholder(box,'img',desc), isBg && note(box,desc)); };
-    placeholder(box, 'img', desc); if (isBg) note(box, desc);
+    img.onerror = () => { if (n < list.length) img.src = list[n++]; else if (isBg) placeholder(box,'img',desc); else drop(box, desc); };
+    placeholder(box, 'img', desc);
     img.src = list[n++];
   }
   function note(box, desc){ const d=document.createElement('div'); d.className='bgnote'; d.textContent=`[tło: ${desc}]`; box.appendChild(d); }
@@ -1116,7 +1122,7 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
     const v = document.createElement('video');
     Object.assign(v, {muted:true, loop:true, playsInline:true, preload:'metadata'});
     v.className = 'pic';
-    const fail = () => poster ? loadImg(box, poster, desc, false) : placeholder(box,'video',desc);
+    const fail = () => poster ? loadImg(box, poster, desc, false) : drop(box, desc);
     v.addEventListener('error', () => { n < list.length ? (v.src = list[n++]) : fail(); }, true);
     v.addEventListener('loadedmetadata', () => {
       box.innerHTML = '';
