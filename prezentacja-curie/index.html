@@ -1071,6 +1071,7 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
   const fp = n => 'https://commons.wikimedia.org/wiki/Special:FilePath/' + encodeURIComponent(n.replace(/ /g,'_'));
   function candidates(id, kind){
     const out = [];
+    if (MEDIA[id] && MEDIA[id].data) out.push(MEDIA[id].data);
     if (MEDIA[id] && MEDIA[id].file) out.push('media/' + MEDIA[id].file);
     const exts = kind === 'video' ? ['webm','mp4'] : ['jpg','jpeg','png','webp'];
     exts.forEach(e => out.push(`media/${id}.${e}`));
