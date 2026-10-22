@@ -114,6 +114,7 @@ img.pic,video.pic{width:100%;height:100%;object-fit:cover;object-position:50% 22
 .media:hover .vctl,.playing .vctl{opacity:1}
 .vctl button{font:600 15px/1 var(--serif-t);letter-spacing:.12em;text-transform:uppercase;color:#fff8ea;padding:10px 16px;border-radius:30px;cursor:pointer;
   border:1px solid rgba(255,255,255,.4);background:rgba(30,18,8,.45);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.media video.pic{pointer-events:none}
 .filmtag{position:absolute;left:16px;top:14px;z-index:6;font:600 14px/1 var(--serif-t);letter-spacing:.3em;color:rgba(255,245,225,.8);text-transform:uppercase}
 
 /* ---------- slajdy szklane ---------- */
@@ -422,7 +423,7 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
 /* laureaci */
 .laur{display:flex;gap:30px;margin-top:40px}
 .lcard{flex:1;padding:34px 30px;border-radius:24px;text-align:center}
-.lcard .s{font:700 76px/1 var(--serif-d);color:#fff8ec}
+.lcard .s{font:700 50px/1.2 var(--serif-d);color:#fff8ec}
 .lcard .nm{font:600 30px/1.2 var(--serif-t);color:#fff8ec;margin-top:12px}
 .lcard .r{font:italic 500 23px/1.2 var(--serif-t);color:var(--gold-l);margin-top:6px}
 .lcard.hl{box-shadow:0 40px 100px rgba(0,0,0,.5),0 0 0 2px rgba(236,210,155,.7),inset 0 1px 0 rgba(255,255,255,.6)}
@@ -837,9 +838,9 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
       <div class="kicker" style="justify-content:center">Sztokholm · 1903</div>
       <h2 style="margin-bottom:10px">Nagroda Nobla <em>z fizyki</em></h2>
       <div class="laur">
-        <div class="glass lcard"><div class="s">½</div><div class="nm">Henri Becquerel</div><div class="r">odkrycie promieniowania</div></div>
-        <div class="glass lcard"><div class="s">¼</div><div class="nm">Piotr Curie</div><div class="r">upomniał się o Marię</div></div>
-        <div class="glass lcard hl"><div class="s">¼</div><div class="nm">Maria Curie</div><div class="r">pierwsza kobieta noblistka</div></div>
+        <div class="glass lcard"><div class="s">1852–1908</div><div class="nm">Henri Becquerel</div><div class="r">odkrył promieniowanie uranu</div></div>
+        <div class="glass lcard"><div class="s">1859–1906</div><div class="nm">Piotr Curie</div><div class="r">upomniał się o Marię</div></div>
+        <div class="glass lcard hl"><div class="s">1867–1934</div><div class="nm">Maria Curie</div><div class="r">pierwsza kobieta noblistka</div></div>
       </div>
     </div>
   </div>
@@ -1011,7 +1012,7 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
     <div class="stats">
       <div class="glass stat"><div class="n">2</div><div class="l">nowe pierwiastki</div></div>
       <div class="glass stat"><div class="n">2</div><div class="l">Nagrody Nobla</div></div>
-      <div class="glass stat"><div class="n">1</div><div class="l">nowa dziedzina nauki</div></div>
+      <div class="glass stat"><div class="n">1.</div><div class="l">kobieta z Nagrodą Nobla</div></div>
     </div>
     <p class="rv" style="font:italic 500 34px/1 var(--serif-t);color:rgba(255,240,215,.75);margin-top:44px">Dziękuję za uwagę</p>
   </div>
@@ -1128,15 +1129,9 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
     v.addEventListener('loadedmetadata', () => {
       box.innerHTML = '';
       box.appendChild(v);
-      box.insertAdjacentHTML('beforeend', `<span class="filmtag">▣ archiwum</span>
-        <button class="playbtn" aria-label="Odtwórz">${playSvg}</button>
-        <div class="vctl"><button data-a="pause">Pauza</button><button data-a="mute">Dźwięk: wył.</button></div>`);
-      box.querySelector('.playbtn').onclick = e => { e.stopPropagation(); v.play(); };
-      box.querySelector('[data-a=pause]').onclick = e => { e.stopPropagation(); v.paused ? v.play() : v.pause(); };
-      const mb = box.querySelector('[data-a=mute]');
-      mb.onclick = e => { e.stopPropagation(); v.muted = !v.muted; mb.textContent = 'Dźwięk: ' + (v.muted ? 'wył.' : 'wł.'); };
-      v.onplay = () => { box.classList.add('playing'); box.querySelector('[data-a=pause]').textContent='Pauza'; };
-      v.onpause = () => { box.classList.remove('playing'); };
+      box.insertAdjacentHTML('beforeend', `<span class="filmtag">▣ archiwum</span>`);
+      v.muted = true; v.controls = false; v.disablePictureInPicture = true;
+      if (box.closest('.slide')?.classList.contains('active')) v.play().catch(()=>{});
       remoteInfo(id, v.currentSrc || v.src); credit(box, id);
     }, {once:true});
     v.src = list[n++];
@@ -1152,6 +1147,7 @@ ul.pts.roman li::before{counter-increment:r;content:counter(r,upper-roman);trans
     i = Math.max(0, Math.min(slides.length-1, i));
     slides.forEach((s,k)=>{ s.classList.toggle('active', k===i); s.classList.toggle('before', k<i); });
     if (i !== cur) slides[cur].querySelectorAll('video').forEach(v=>v.pause());
+    slides[i].querySelectorAll('video').forEach(v=>{ v.muted = true; v.play().catch(()=>{}); });
     cur = i;
     progress.style.width = ((i+1)/slides.length*100) + '%';
     history.replaceState(null, '', '#' + (i+1));
